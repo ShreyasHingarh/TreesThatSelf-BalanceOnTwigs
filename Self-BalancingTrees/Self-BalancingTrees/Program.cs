@@ -6,16 +6,29 @@ namespace Self_BalancingTrees
 {
     class Program
     {
-        static int CustomCompare(int a, int b)
+        //static int CustomCompare(int a, int b)
+        //{
+        //    bool aEven = a % 2 == 0;
+        //    bool bEven = b % 2 == 0;
+        //    //Even numbers are sorted first
+        //    if (aEven && !bEven)
+        //    {
+        //        return -1;
+        //    }
+        //    else if (!aEven && bEven)
+        //    {
+        //        return 1;
+        //    }
+        //    return a.CompareTo(b);
+        //}
+
+        static int CustomCompare(string a, string b)
         {
-            bool aEven = a % 2 == 0;
-            bool bEven = b % 2 == 0;
-            //Even numbers are sorted first
-            if (aEven && !bEven)
+            if(a[0] == 'z' && b[0] != 'z')
             {
                 return -1;
             }
-            else if (!aEven && bEven)
+            else if(b[0] == 'z' && a[0] != 'z')
             {
                 return 1;
             }
@@ -24,32 +37,55 @@ namespace Self_BalancingTrees
 
         static void Main(string[] args)
         {
-            BinaryHeapTree<int> tree = new BinaryHeapTree<int>(Comparer<int>.Create((a, b) => b.CompareTo(a)));
+            //class Entry<TKey, TValue>
+            //BST<Entry<TKey, TValue>> tree;
+            //public Node<T> Find(Entry<TKey, TValue> nodeValue)
+            //comparer.Compare(nodeValue, current.Value);
+            //tree.Find(new Entry<TKey, TValue>(key, null)).Value.Value;
 
-            Random rand = new Random(30);
+            BinaryHeapTree<string> tree = new BinaryHeapTree<string>(Comparer<string>.Create(CustomCompare));
 
-            int[] nums = new int[20]; //{ 4,5,1,3,2,10,6,9,7,8};
+            Random rand = new Random(22);
+
+            string[] nums = new string[20];
             for (int i = 0; i < nums.Length; i++)
             {
-                nums[i] = rand.Next(1, 100);
+                nums[i] = rand.NextString(rand.Next(1, 10));
             }
 
+            #region
             for (int i = 0; i < nums.Length; i++)
             {
                 tree.Insert(nums[i]);
             }
             Console.WriteLine(tree.IsValid());
-            List<int> s = new List<int>();
+       
             while (tree.Count > 0)
             {
-                int value = tree.Pop();
-                s.Add(value);
+                string value = tree.Pop();
+                Console.WriteLine(value);
                 if (!tree.IsValid())
                 {
                     Console.WriteLine($"Invalid after popping {value}");
                 }
             }
             Console.WriteLine(tree.IsValid());
+            #endregion
+        }
+    }
+
+    static class RandomStringExtensions
+    {
+        public static string NextString(this Random random, int length)
+        {
+            string word = "";
+            for (int i = 0; i < length; i++)
+            {
+                int num = random.Next('a', 'z' + 1);
+                char c = (char)num;
+                word += c;
+            }
+            return word;
         }
     }
 }
