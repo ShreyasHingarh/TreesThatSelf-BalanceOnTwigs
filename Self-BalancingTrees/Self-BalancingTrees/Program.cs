@@ -37,40 +37,49 @@ namespace Self_BalancingTrees
 
         static void Main(string[] args)
         {
+            #region
             //class Entry<TKey, TValue>
             //BST<Entry<TKey, TValue>> tree;
             //public Node<T> Find(Entry<TKey, TValue> nodeValue)
             //comparer.Compare(nodeValue, current.Value);
             //tree.Find(new Entry<TKey, TValue>(key, null)).Value.Value;
 
-            BinaryHeapTree<string> tree = new BinaryHeapTree<string>(Comparer<string>.Create(CustomCompare));
+            //BinaryHeapTree<string> tree = new BinaryHeapTree<string>(Comparer<string>.Create(CustomCompare));
 
-            Random rand = new Random(22);
+            //Random rand = new Random(22);
 
-            string[] nums = new string[20];
-            for (int i = 0; i < nums.Length; i++)
-            {
-                nums[i] = rand.NextString(rand.Next(1, 10));
-            }
+            //string[] nums = new string[20];
+            //for (int i = 0; i < nums.Length; i++)
+            //{
+            //    nums[i] = rand.NextString(rand.Next(1, 10));
+            //}
 
-            #region
-            for (int i = 0; i < nums.Length; i++)
-            {
-                tree.Insert(nums[i]);
-            }
-            Console.WriteLine(tree.IsValid());
-       
-            while (tree.Count > 0)
-            {
-                string value = tree.Pop();
-                Console.WriteLine(value);
-                if (!tree.IsValid())
-                {
-                    Console.WriteLine($"Invalid after popping {value}");
-                }
-            }
-            Console.WriteLine(tree.IsValid());
+
+            //for (int i = 0; i < nums.Length; i++)
+            //{
+            //    tree.Insert(nums[i]);
+            //}
+            //Console.WriteLine(tree.IsValid());
+
+            //while (tree.Count > 0)
+            //{
+            //    string value = tree.Pop();
+            //    Console.WriteLine(value);
+            //    if (!tree.IsValid())
+            //    {
+            //        Console.WriteLine($"Invalid after popping {value}");
+            //    }
+            //}
+            //Console.WriteLine(tree.IsValid());
             #endregion
+            AVLoserTree<int> avl = new AVLoserTree<int>();
+            int[] nums = new int[] { 8,7,1,6,2,4,3,9,5 };
+
+            foreach(var num in nums)
+            {
+                avl.Insert(num);
+            }
+            ;
         }
     }
 
