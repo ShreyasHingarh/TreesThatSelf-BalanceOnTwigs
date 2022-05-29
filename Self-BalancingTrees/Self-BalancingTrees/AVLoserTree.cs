@@ -8,36 +8,17 @@ namespace Self_BalancingTrees
     {
         public T Value { get; set; }
         public Node<T> LeftChild { get; set; }
-        public Node<T> RightChild { get; set; }   
-        public int Height(int amount)
+        public Node<T> RightChild { get; set; }
+
+        //For now this is ok, but it should not be recursive!!!!
+        public int Height
         {
-            int Amount = amount;
-            if (ChildCount == 0)
+            get
             {
-                return 1;
+                return Math.Max(LeftChild?.Height ?? 0, RightChild?.Height ?? 0) + 1;
             }
-            else if (RightChild == null && LeftChild != null)
-            {
-                LeftChild.Height(Amount + 1);
-            }
-            else if (RightChild != null && LeftChild == null)
-            {
-                RightChild.Height(Amount + 1);
-            }
-            else if (ChildCount == 2)
-            {
-                if(RightChild.Height(0) == LeftChild.Height(0) + 1)
-                {
-                    RightChild.Height(Amount + 1);
-                }
-                if (RightChild.Height(0) + 1 == LeftChild.Height(0))
-                {
-                    LeftChild.Height(Amount + 1);
-                }
-            }
-            return Amount + 1;
         }
-        public int ChildCount 
+        public int ChildCount
         {
             get
             {
@@ -52,23 +33,11 @@ namespace Self_BalancingTrees
                 return 0;
             }
         }
-        public int Balance 
+        public int Balance
         {
             get
             {
-                if (ChildCount == 0)
-                {
-                    return 0;
-                }
-                else if (LeftChild != null && RightChild == null)
-                {
-                    return LeftChild.Height(0);
-                }
-                else if (RightChild != null && LeftChild == null)
-                {
-                    return RightChild.Height(0);
-                }
-                return RightChild.Height(0) - LeftChild.Height(0);
+                return (RightChild?.Height ?? 0) - (LeftChild?.Height ?? 0);
             }
         }
 
@@ -80,49 +49,95 @@ namespace Self_BalancingTrees
     }
     class AVLoserTree<T> where T : IComparable<T>
     {
-        //Height, rotations, double rotations, delete, traversals, contains, find
+        //Height, delete, traversals, contains, find
         public Node<T> Top;
         public int Count = 0;
-        public void Balance(Node<T> NodeAt)
+        private Node<T> FindParent(Node<T> node)
         {
-            
+            if (Top == null || Top == node)
+            {
+                return null;
+            }
+            Node<T> temp = Top;
+            for (int i = 0; i < Count; i++)
+            {
+
+                if (node.Value.CompareTo(temp.Value) <= 0)
+                {
+                    if (temp.LeftChild == node)
+                    {
+                        return temp;
+                    }
+                    temp = temp.LeftChild;
+                }
+                else
+                {
+                    if (temp.RightChild == node)
+                    {
+                        return temp;
+                    }
+                    temp = temp.RightChild;
+                }
+            }
+            return null;
         }
+
+        public Node<T> RotateRight(Node<T> root)
+        {
+            Node<T> newRoot = root.RightChild;
+            root.RightChild = newRoot.LeftChild;
+            newRoot.LeftChild = root;
+            return newRoot;
+        }
+        public Node<T> RotateLeft(Node<T> root)
+        {
+            Node<T> newRoot = root.LeftChild;
+            root.LeftChild = newRoot.RightChild;
+            newRoot.RightChild = root;
+            return newRoot;
+        }
+        private Node<T> Rebalance(Node<T> node)
+        {
+
+            if (node.Balance < -1)
+            {
+                node = RotateLeft(node);
+            }
+            else if (node.Balance > 1)
+            {
+                node = RotateRight(node);
+            }
+            else if(node.Balance == 2)
+            {
+                 RotateRight(node);
+               
+            }
+            return node;
+        }
+
         public void Insert(T value)
         {
-            if (Count == 0)
-            {
-                Top = new Node<T>(value);
-                Count++;
-                return;
-            }
-            var result = Insert(value, Top);
-            
+            Top = Insert(value, Top);
         }
-        private Node<T> Insert(T value,Node<T> nodeAt)
+
+        private Node<T> Insert(T value, Node<T> node)
         {
-            
-            if (value.CompareTo(nodeAt.Value) <= 0)
+            if (node == null)
             {
-                if(nodeAt.LeftChild == null)
-                {
-                    nodeAt.LeftChild = new Node<T>(value);
-                    Count++;
-                    return nodeAt;
-                }
-                return Insert(value, nodeAt.LeftChild);
+                Count++;
+
+                return new Node<T>(value);
+            }
+
+            if (node.Value.CompareTo(value) > 0)
+            {
+                node.LeftChild = Insert(value, node.LeftChild);
             }
             else
             {
-                if (nodeAt.RightChild == null)
-                {
-                    nodeAt.RightChild = new Node<T>(value);
-                    Count++;
-                    return nodeAt;
-                }
-                return Insert(value, nodeAt.RightChild);
+                node.RightChild = Insert(value, node.RightChild);
             }
+            return Rebalance(node);
         }
-
-       
     }
 }
