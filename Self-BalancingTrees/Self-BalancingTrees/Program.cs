@@ -73,13 +73,15 @@ namespace Self_BalancingTrees
             //Console.WriteLine(tree.IsValid());
             #endregion
             AVLoserTree<int> avl = new AVLoserTree<int>();
-            int[] nums = new int[] { 8,7,1,6,2,4,3,9,5 };
+            int[] nums = new int[] { 9,8,7,2,4,3,5,6 };
 
             foreach(var num in nums)
             {
                 avl.Insert(num);
             }
             ;
+            var temp = avl.Contains(3);
+            ;   
         }
     }
 

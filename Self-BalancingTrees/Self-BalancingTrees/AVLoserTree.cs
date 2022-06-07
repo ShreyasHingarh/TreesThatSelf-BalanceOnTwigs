@@ -10,6 +10,32 @@ namespace Self_BalancingTrees
         public Node<T> LeftChild { get; set; }
         public Node<T> RightChild { get; set; }
 
+        public enum TypesOfChildren
+        {
+            Zero,
+            Left,
+            Right,
+            Both
+        }
+        public TypesOfChildren TypeOfChild
+        {
+            get
+            {
+                if(LeftChild != null && RightChild != null)
+                {
+                    return TypesOfChildren.Both;
+                }
+                else if(LeftChild == null && RightChild != null)
+                {
+                    return TypesOfChildren.Right;
+                }
+                else if(LeftChild != null && RightChild == null)
+                {
+                    return TypesOfChildren.Left;
+                }
+                return TypesOfChildren.Zero;
+            }
+        }
         //For now this is ok, but it should not be recursive!!!!
         public int Height
         {
@@ -49,41 +75,15 @@ namespace Self_BalancingTrees
     }
     class AVLoserTree<T> where T : IComparable<T>
     {
-        //Height, delete, traversals, contains, find
+        // delete, traversals
         public Node<T> Top;
         public int Count = 0;
-        private Node<T> FindParent(Node<T> node)
-        {
-            if (Top == null || Top == node)
-            {
-                return null;
-            }
-            Node<T> temp = Top;
-            for (int i = 0; i < Count; i++)
-            {
-
-                if (node.Value.CompareTo(temp.Value) <= 0)
-                {
-                    if (temp.LeftChild == node)
-                    {
-                        return temp;
-                    }
-                    temp = temp.LeftChild;
-                }
-                else
-                {
-                    if (temp.RightChild == node)
-                    {
-                        return temp;
-                    }
-                    temp = temp.RightChild;
-                }
-            }
-            return null;
-        }
-
         public Node<T> RotateRight(Node<T> root)
         {
+            if (root.RightChild.RightChild == null && root.Balance == 2)
+            {
+                root.RightChild = RotateLeft(root.RightChild);
+            }
             Node<T> newRoot = root.RightChild;
             root.RightChild = newRoot.LeftChild;
             newRoot.LeftChild = root;
@@ -91,26 +91,24 @@ namespace Self_BalancingTrees
         }
         public Node<T> RotateLeft(Node<T> root)
         {
+            if(root.LeftChild.LeftChild == null && root.Balance == -2)
+            {
+                root.LeftChild = RotateRight(root.LeftChild);
+            }
             Node<T> newRoot = root.LeftChild;
             root.LeftChild = newRoot.RightChild;
             newRoot.RightChild = root;
             return newRoot;
         }
         private Node<T> Rebalance(Node<T> node)
-        {
-
+        {       
             if (node.Balance < -1)
             {
                 node = RotateLeft(node);
             }
             else if (node.Balance > 1)
-            {
+            {  
                 node = RotateRight(node);
-            }
-            else if(node.Balance == 2)
-            {
-                 RotateRight(node);
-               
             }
             return node;
         }
@@ -119,7 +117,15 @@ namespace Self_BalancingTrees
         {
             Top = Insert(value, Top);
         }
+        public void Delete(T value)
+        {
+            if (Count == 0)
+            {
+                return;
+            }
+            Node<T> NodeToDelete = Find(value);
 
+        }
         private Node<T> Insert(T value, Node<T> node)
         {
             if (node == null)
@@ -138,6 +144,32 @@ namespace Self_BalancingTrees
                 node.RightChild = Insert(value, node.RightChild);
             }
             return Rebalance(node);
+        }
+        public bool Contains(T value)
+        {
+            return Find(value) != null;
+        }
+        public Node<T> Find(T value)
+        {
+            if (Count == 0) return null;
+            if (Top.Value.Equals(value))
+            {
+                return Top;
+            }             
+            return FindNode(value,Top);
+        }
+        private  Node<T> FindNode(T value,Node<T> StartingNode)
+        {
+            if (StartingNode == null) return null;
+            if (StartingNode.Value.Equals(value)) return StartingNode;
+            if (value.CompareTo(StartingNode.Value) <= 0)
+            {
+                return FindNode(value, StartingNode.LeftChild);
+            }
+            else
+            {
+                return FindNode(value, StartingNode.RightChild);
+            }
         }
     }
 }
