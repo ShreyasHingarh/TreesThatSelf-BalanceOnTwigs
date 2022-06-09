@@ -4,19 +4,20 @@ using System.Text;
 
 namespace Self_BalancingTrees
 {
+    public enum TypesOfChildren
+    {
+        Zero,
+        Left,
+        Right,
+        Both
+    }
     class Node<T> where T : IComparable<T>
     {
         public T Value { get; set; }
         public Node<T> LeftChild { get; set; }
         public Node<T> RightChild { get; set; }
 
-        public enum TypesOfChildren
-        {
-            Zero,
-            Left,
-            Right,
-            Both
-        }
+       
         public TypesOfChildren TypeOfChild
         {
             get
@@ -36,7 +37,7 @@ namespace Self_BalancingTrees
                 return TypesOfChildren.Zero;
             }
         }
-        //For now this is ok, but it should not be recursive!!!!
+      
         public int Height
         {
             get
@@ -44,21 +45,7 @@ namespace Self_BalancingTrees
                 return Math.Max(LeftChild?.Height ?? 0, RightChild?.Height ?? 0) + 1;
             }
         }
-        public int ChildCount
-        {
-            get
-            {
-                if (LeftChild != null && RightChild != null)
-                {
-                    return 2;
-                }
-                else if (LeftChild != null && RightChild == null || LeftChild == null && RightChild != null)
-                {
-                    return 1;
-                }
-                return 0;
-            }
-        }
+      
         public int Balance
         {
             get
@@ -113,18 +100,80 @@ namespace Self_BalancingTrees
             return node;
         }
 
-        public void Insert(T value)
-        {
-            Top = Insert(value, Top);
-        }
+       
         public void Delete(T value)
         {
             if (Count == 0)
             {
                 return;
             }
-            Node<T> NodeToDelete = Find(value);
+            else if (Count == 1)
+            {
+                Top = null;
+                Count--;
+                return;
+            }
+            Delete(Top,value);
+            
+        }
 
+        public Node<T> Delete(Node<T> current, T value)
+        {
+            if (value.CompareTo(current.Value) < 0)
+            {
+                Delete(current.LeftChild, value);
+                Rebalance(current.LeftChild);
+                return current;
+            }
+            else if(value.CompareTo(current.Value) > 0)
+            {
+                Delete(current.RightChild, value);
+                Rebalance(current.RightChild);
+                return current;
+            }
+            else
+            {
+                if(Top == current)
+                {
+                    Top = Remove(current);
+                }
+                else
+                {
+                    current = Remove(current);
+                }
+                Count--;
+                return current;
+            }
+
+        }
+        private Node<T> Remove(Node<T> NodeToDelete)
+        {
+
+            if (NodeToDelete.TypeOfChild == TypesOfChildren.Zero)
+            {
+                return null;
+            }
+            else if (NodeToDelete.TypeOfChild == TypesOfChildren.Left)
+            {
+                return NodeToDelete.LeftChild;
+            }
+            else if (NodeToDelete.TypeOfChild == TypesOfChildren.Right)
+            {
+                return NodeToDelete.RightChild;
+            }
+            Node<T> temp = NodeToDelete.LeftChild;
+            while (temp.RightChild != null)
+            {
+                temp = temp.RightChild;
+            }
+            NodeToDelete.Value = temp.Value;
+            NodeToDelete. = Remove(temp);
+            return NodeToDelete;
+
+        }
+        public void Insert(T value)
+        {
+            Top = Insert(value, Top);
         }
         private Node<T> Insert(T value, Node<T> node)
         {

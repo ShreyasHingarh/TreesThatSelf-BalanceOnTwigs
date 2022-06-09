@@ -80,8 +80,8 @@ namespace Self_BalancingTrees
                 avl.Insert(num);
             }
             ;
-            var temp = avl.Contains(3);
-            ;   
+            avl.Delete(4);
+            ;
         }
     }
 
