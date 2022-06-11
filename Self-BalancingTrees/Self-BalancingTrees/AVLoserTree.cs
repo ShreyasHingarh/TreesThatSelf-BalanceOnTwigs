@@ -65,23 +65,24 @@ namespace Self_BalancingTrees
         // delete, traversals
         public Node<T> Top;
         public int Count = 0;
-        public Node<T> RotateRight(Node<T> root)
+        public Node<T> RotateLeft(Node<T> root)
         {
-            if (root.RightChild.RightChild == null && root.Balance == 2)
+            if (root.Balance == 2 && root.RightChild.Balance < 0)
             {
-                root.RightChild = RotateLeft(root.RightChild);
+                root.RightChild = RotateRight(root.RightChild);
             }
             Node<T> newRoot = root.RightChild;
             root.RightChild = newRoot.LeftChild;
             newRoot.LeftChild = root;
             return newRoot;
         }
-        public Node<T> RotateLeft(Node<T> root)
+        public Node<T> RotateRight(Node<T> root)
         {
-            if(root.LeftChild.LeftChild == null && root.Balance == -2)
+            if(root.Balance == -2 && root.LeftChild.Balance > 0)
             {
-                root.LeftChild = RotateRight(root.LeftChild);
+                root.LeftChild = RotateLeft(root.LeftChild);
             }
+            
             Node<T> newRoot = root.LeftChild;
             root.LeftChild = newRoot.RightChild;
             newRoot.RightChild = root;
@@ -91,11 +92,11 @@ namespace Self_BalancingTrees
         {       
             if (node.Balance < -1)
             {
-                node = RotateLeft(node);
+                node = RotateRight(node);
             }
             else if (node.Balance > 1)
             {  
-                node = RotateRight(node);
+                node = RotateLeft(node);
             }
             return node;
         }
@@ -103,7 +104,7 @@ namespace Self_BalancingTrees
        
         public void Delete(T value)
         {
-            if (Count == 0)
+            if (Count == 0 || Find(value) == null)
             {
                 return;
             }
@@ -113,38 +114,48 @@ namespace Self_BalancingTrees
                 Count--;
                 return;
             }
-            Delete(Top,value);
+            
+            if (Top.Value.Equals(value))
+            {
+                Top = Remove(Top);
+                Top = Rebalance(Top);
+                Count--;
+            }
+            else {Top = Delete(Top, value); }
             
         }
 
         public Node<T> Delete(Node<T> current, T value)
         {
+            
             if (value.CompareTo(current.Value) < 0)
             {
-                Delete(current.LeftChild, value);
-                Rebalance(current.LeftChild);
-                return current;
-            }
-            else if(value.CompareTo(current.Value) > 0)
-            {
-                Delete(current.RightChild, value);
-                Rebalance(current.RightChild);
-                return current;
-            }
-            else
-            {
-                if(Top == current)
+                if(current.LeftChild.Value.Equals(value))
                 {
-                    Top = Remove(current);
+                    current.LeftChild = Remove(current.LeftChild);
+                    Count--;
                 }
                 else
                 {
-                    current = Remove(current);
+                    Delete(current.LeftChild, value);
                 }
-                Count--;
-                return current;
+                return Rebalance(current);
+            }
+            else
+            {
+                if(current.RightChild.Value.Equals(value))
+                {
+                    current.RightChild = Remove(current.RightChild);
+                    Count--;
+                }
+                else
+                {
+                    Delete(current.RightChild, value);
+                }
+                return Rebalance(current);
             }
 
+             
         }
         private Node<T> Remove(Node<T> NodeToDelete)
         {
@@ -162,12 +173,23 @@ namespace Self_BalancingTrees
                 return NodeToDelete.RightChild;
             }
             Node<T> temp = NodeToDelete.LeftChild;
+            Node<T> Parent = NodeToDelete;
             while (temp.RightChild != null)
             {
+                Parent = temp;
                 temp = temp.RightChild;
             }
             NodeToDelete.Value = temp.Value;
-            NodeToDelete. = Remove(temp);
+            if(Parent.Equals(NodeToDelete))
+            {
+                Parent.LeftChild = Remove(temp);
+            }
+            else
+            {
+                Parent.RightChild = Remove(temp);
+
+            }
+            Rebalance(Parent);
             return NodeToDelete;
 
         }
