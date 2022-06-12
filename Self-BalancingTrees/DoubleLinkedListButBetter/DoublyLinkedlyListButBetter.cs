@@ -49,11 +49,25 @@ namespace DoubleLinkedListButBetter
         }
         public void Delete(T value)
         {
-            
+            Node<T> node = Head;
+            while(node.Value.CompareTo(value) < 0)
+            {
+                if(node.Child.Value.Equals(value))
+                {
+                    RemoveLinks(node);
+                    return;
+                }
+                node = node.Child;
+            }
         }
         public void RemoveLinks(Node<T> node)
         {
-
+            node.Child = node.Child.Child;
+            if(node.Child != null)
+            {
+                node.Child.Parent = node;
+            }
+            
         }
     }
 }
