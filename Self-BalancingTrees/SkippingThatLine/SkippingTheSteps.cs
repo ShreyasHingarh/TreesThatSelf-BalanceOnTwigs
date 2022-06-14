@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Text;
 
 namespace SkippingThatLine
 {
@@ -19,6 +18,7 @@ namespace SkippingThatLine
             Height = height;
         }
     }
+    
     public class SkippingTheSteps<T> : ICollection<T>
         where T : IComparable<T>
     {
@@ -29,10 +29,24 @@ namespace SkippingThatLine
         public int Count { get; set; }
 
         public bool IsReadOnly => false;
-        public void ConnectNodes()
+        public void ConnectNodes(Node<T> node,Node<T> newNode)
         {
-            
+            Node<T> temp = node.Next;
+            node.Next = newNode;
+            node.Next.Next = temp;            
         }
+        public Node<T> GenerateNewNodes(T value, int Height)
+        {
+            Node<T> newnode = new Node<T>(value, Height);
+            Node<T> temp = newnode;
+            for(int i = Height - 1;i > -1;i--)
+            {
+                temp.Down = new Node<T>(value, i);
+                temp = temp.Down;
+            }
+            return newnode;
+        }
+
         public void Add(T item)
         {
             int height = GetHeight();
@@ -41,27 +55,30 @@ namespace SkippingThatLine
             {
                 start = start.Down;
             }
-            while (start.Height > -1)
+            Node<T> newNode = GenerateNewNodes(item, height);
+            
+            while (start != null)
             {
-                while(start.Value.CompareTo(item) < 0 || start == Head)
+                Node<T> temp = start;
+                while (temp.Value.CompareTo(item) <= 0)
                 {
-                    if (start.Next == null || start.Next.Value.CompareTo(item) > 0)
+                    if (temp.Next == null || temp.Next.Value.CompareTo(item) >= 0)
                     {
-                        ConnectNodes();
+                        ConnectNodes(temp, newNode);
                         break;
                     }
-                    start = start.Next;
+                    temp = temp.Next;
                 }
-                start.Height--;
-
+                start = start.Down;
+                newNode = newNode.Down;
             }
+            Count++;
         }
 
         public void Clear()
         {
             Head = null;
-            Head.Value = default;
-            Head.Height = 0;
+            Head = new Node<T>(default, 0);
             Count = 0;
         }
 
@@ -72,15 +89,15 @@ namespace SkippingThatLine
             int num = generator.Next(0, 2);
             while(num == 0)
             {
+                height++;
                 if (height == maxHeight)
                 {
-                    Node<T> temp = Head.Down;
-                    Head.Height = maxHeight;
-                    Head.Down = new Node<T>(Head.Value,Head.Height--);
-                    Head.Down.Down = temp;
+                    Node<T> newHead = new Node<T>(Head.Value,maxHeight);
+                    newHead.Down = Head;
+                    Head = newHead;
                     break;
                 }
-                height++;
+                
                 num = generator.Next(0, 2);
             }
             return height;
@@ -88,22 +105,20 @@ namespace SkippingThatLine
         public Node<T> Find(T value)
         {
             Node<T> startingPoint = Head;
+            Node<T> temp;
             while(startingPoint != null)
-            { 
-                while(startingPoint != null)
+            {
+                temp = startingPoint;
+                while(temp != null && temp.Value.CompareTo(value) <= 0)
                 {
-                    if (startingPoint.Next.Value.CompareTo(value) > 0)
+                    if(temp.Value.Equals(value))
                     {
-                        break;
-                    }
-                    else if (startingPoint.Next.Value.Equals(value))
-                    {
-                        return startingPoint.Next;
+                        return temp;
                     }
                     
-                    startingPoint = startingPoint.Next;
+                    temp = temp.Next;                  
                 }
-                startingPoint = Head.Down;
+                startingPoint = startingPoint.Down;
             }
             return null;
         }
@@ -112,6 +127,7 @@ namespace SkippingThatLine
             return Find(item) != null;
         }
 
+        //fix
         public void CopyTo(T[] array, int arrayIndex)
         {
             T[] temp = new T[arrayIndex];
@@ -136,9 +152,39 @@ namespace SkippingThatLine
         {
             throw new NotImplementedException();
         }
+        public void DisconnectNodes(Node<T> previous,Node<T> oneToDelete)
+        {
+
+        }
         public bool Remove(T item)
         {
-            throw new NotImplementedException();
+            Node<T> StartingNode = Head;
+            Node<T> NodeToDelete = Find(item);
+            if(NodeToDelete == null)
+            {
+                return false;
+            }
+            while (StartingNode.Height != NodeToDelete.Height)
+            {
+                StartingNode = StartingNode.Down;
+            }
+            
+            while (StartingNode != null)
+            {
+                Node<T> temp = StartingNode;
+                while (temp.Value.CompareTo(item) <= 0)
+                {
+                    if(temp.Next == NodeToDelete)
+                    {
+                        DisconnectNodes(temp,NodeToDelete);
+                        break;
+                    }
+                    temp = temp.Next;
+                }
+                StartingNode = StartingNode.Down;
+                NodeToDelete = NodeToDelete.Down;
+            }
+            return true;
         }
 
         IEnumerator IEnumerable.GetEnumerator()
