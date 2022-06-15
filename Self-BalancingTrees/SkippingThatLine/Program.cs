@@ -8,10 +8,16 @@ namespace SkippingThatLine
         {
             SkippingTheSteps<int> skip = new SkippingTheSteps<int>();
             Random gen = new Random();
-            for(int i = 0;i < 7;i++)
+            for(int i = -1;i < 7;i++)
             {
                 skip.Add(i);
-                
+            }
+            skip.Remove(4);
+            Console.WriteLine(skip.ToString());
+
+            foreach(var num in skip)
+            {
+                Console.WriteLine(num);
             }
         }
     }

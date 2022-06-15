@@ -59,15 +59,20 @@ namespace SkippingThatLine
             
             while (start != null)
             {
-                Node<T> temp = start;
-                while (temp.Value.CompareTo(item) <= 0)
+                Node<T> current = start;
+                Node<T> temp = start.Next;
+                while(true)
                 {
-                    if (temp.Next == null || temp.Next.Value.CompareTo(item) >= 0)
+                    if (temp == null || temp.Value.CompareTo(item) >= 0)
                     {
-                        ConnectNodes(temp, newNode);
+                        ConnectNodes(current, newNode);
                         break;
                     }
-                    temp = temp.Next;
+                    else if (temp.Value.CompareTo(item) <= 0)
+                    {
+                        current = temp;
+                        temp = temp.Next;
+                    }
                 }
                 start = start.Down;
                 newNode = newNode.Down;
@@ -150,11 +155,23 @@ namespace SkippingThatLine
 
         public IEnumerator<T> GetEnumerator()
         {
-            throw new NotImplementedException();
+            Node<T> startingPoint = Head;
+           
+            while (startingPoint.Down != null)
+            {
+                startingPoint = startingPoint.Down;
+            }
+            
+            while(startingPoint != null)
+            {
+                yield return startingPoint.Value;
+                startingPoint = startingPoint.Next;
+            }
         }
-        public void DisconnectNodes(Node<T> previous,Node<T> oneToDelete)
-        {
 
+        public void DisconnectNodes(Node<T> previous)
+        {
+            previous.Next = previous.Next.Next;
         }
         public bool Remove(T item)
         {
@@ -176,7 +193,8 @@ namespace SkippingThatLine
                 {
                     if(temp.Next == NodeToDelete)
                     {
-                        DisconnectNodes(temp,NodeToDelete);
+                        DisconnectNodes(temp);
+                        
                         break;
                     }
                     temp = temp.Next;
@@ -184,13 +202,33 @@ namespace SkippingThatLine
                 StartingNode = StartingNode.Down;
                 NodeToDelete = NodeToDelete.Down;
             }
+            Count--;
             return true;
         }
 
         IEnumerator IEnumerable.GetEnumerator()
         {
-            throw new NotImplementedException();
+            return GetEnumerator();
         }
-       
+
+        public override string ToString()
+        {
+            Node<T> startingPoint = Head;
+            string oneToGive = "";
+            while(startingPoint != null)
+            {
+                oneToGive += $"{startingPoint.Height}: ";
+                Node<T> temp = startingPoint.Next;
+                while(temp != null)
+                {
+                    oneToGive += $"{temp.Value}, ";
+                    temp = temp.Next;
+                }
+                startingPoint = startingPoint.Down;
+                oneToGive += "\n"; 
+            }
+            return oneToGive;
+        }
+
     }
 }
