@@ -135,22 +135,13 @@ namespace SkippingThatLine
         //fix
         public void CopyTo(T[] array, int arrayIndex)
         {
-            T[] temp = new T[arrayIndex];
-            Node<T> startingPoint = Head;
-            while (startingPoint.Down != null)
+            int i = arrayIndex;
+
+            foreach (var item in this)
             {
-                startingPoint = startingPoint.Down;
+                array[i] = item;
+                i++;
             }
-            for(int i = 0;i< temp.Length;i++)
-            {  
-                if(startingPoint.Next == null)
-                {
-                    break;
-                }
-                startingPoint = startingPoint.Next;
-                temp[i] = startingPoint.Value;
-            }
-            array = temp;
         }
 
         public IEnumerator<T> GetEnumerator()
@@ -161,7 +152,7 @@ namespace SkippingThatLine
             {
                 startingPoint = startingPoint.Down;
             }
-            
+            startingPoint = startingPoint.Next;
             while(startingPoint != null)
             {
                 yield return startingPoint.Value;
